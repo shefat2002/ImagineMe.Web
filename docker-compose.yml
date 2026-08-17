@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # Next.js Application
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_BASE_URL=https://imaginemebylovie.com
+      - NEXT_PUBLIC_APP_URL=https://imaginemebylovie.com
+    volumes:
+      - ./public:/app/public
+      - /app/.next
+    restart: unless-stopped
+    networks:
+      - imagineme-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    depends_on:
+      - web
+    restart: unless-stopped
+    networks:
+      - imagineme-network
+
+  # Certbot for SSL certificates
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    networks:
+      - imagineme-network
+
+networks:
+  imagineme-network:
+    driver: bridge
+
+volumes:
+  certbot-conf:
+  certbot-www:
