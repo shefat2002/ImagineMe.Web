@@ -265,6 +265,12 @@ export default function LoginPage() {
               Child Login
             </a>
           </div>
+
+          <div className="text-center">
+            <a href="/admin/login" className="text-sm text-gray-600 hover:text-gray-500">
+              Admin Login
+            </a>
+          </div>
         </form>
       </div>
     </div>

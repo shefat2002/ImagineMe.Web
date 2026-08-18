@@ -29,6 +29,7 @@ interface AuthContextType {
   setUser: (user: User | null) => void;
   loading: boolean;
   login: (credentials: LoginRequest) => Promise<AuthResponse>;
+  adminLogin: (email: string, password: string) => Promise<AuthResponse>;
   childLogin: (credentials: ChildLoginRequest) => Promise<ChildAuthResponse>;
   register: (data: RegisterRequest) => Promise<AuthResponse>;
   logout: () => void;
@@ -103,6 +104,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: credentials.email,
         fullName: '',
         userType: UserType.Parent, // Default, will be updated from token
+      };
+
+      setUser(newUser);
+      setLoading(false);
+      return response;
+    } catch (error) {
+      setLoading(false);
+      throw error;
+    }
+  }, []);
+
+  const adminLogin = useCallback(async (email: string, password: string): Promise<AuthResponse> => {
+    setLoading(true);
+    try {
+      const response = await authService.login({ email, password });
+
+      // Store token
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('authToken', response.token);
+        localStorage.setItem('isAdmin', 'true');
+      }
+
+      // Set user state with admin type
+      const newUser: User = {
+        id: '',
+        email: email,
+        fullName: 'Administrator',
+        userType: UserType.Admin,
       };
 
       setUser(newUser);
@@ -195,6 +224,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser,
     loading,
     login,
+    adminLogin,
     childLogin,
     register,
     logout,

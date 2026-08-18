@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 // Routes that don't require authentication
-const publicRoutes = ['/auth/login', '/auth/register', '/auth/verify'];
+const publicRoutes = ['/auth/login', '/auth/register', '/auth/verify', '/admin/login'];
 
 // Routes that require specific user types
 const parentRoutes = ['/parent'];
@@ -26,6 +26,10 @@ export function middleware(request: NextRequest) {
 
       const dashboardPath = redirectMap[userType];
       if (dashboardPath) {
+        // But don't redirect if on admin login page and user is admin
+        if (pathname.startsWith('/admin/login') && userType === '2') {
+          return NextResponse.next();
+        }
         return NextResponse.redirect(new URL(dashboardPath, request.url));
       }
     }
@@ -34,6 +38,13 @@ export function middleware(request: NextRequest) {
 
   // Check authentication for protected routes
   if (!token) {
+    // Admin routes redirect to admin login
+    if (adminRoutes.some(route => pathname.startsWith(route))) {
+      const loginUrl = new URL('/admin/login', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    // Other routes redirect to regular login
     const loginUrl = new URL('/auth/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);

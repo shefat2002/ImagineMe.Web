@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,11 +20,16 @@ export const metadata: Metadata = {
   title: "Imagine Me - Interactive Learning Platform",
   description: "Educational platform with stories, quizzes, and games for children",
   manifest: "/manifest.json",
+};
+
+export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
     { media: "(prefers-color-scheme: dark)", color: "#1f2937" }
   ],
-  viewport: "width=device-width, initial-scale=1, maximum-scale=5",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -37,7 +43,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>
       <body className="min-h-full flex flex-col">
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
 
         {/* Service Worker Registration */}
         <Script id="service-worker-registration" strategy="afterInteractive">
@@ -60,7 +68,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Script id="performance-monitor" strategy="afterInteractive">
           {`
             // Enable performance monitoring in development
-            if (process.env.NODE_ENV === 'development') {
+            if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
               window.addEventListener('load', () => {
                 setTimeout(() => {
                   if ('performance' in window) {

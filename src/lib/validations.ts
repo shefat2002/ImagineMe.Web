@@ -18,7 +18,7 @@ export const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   fullName: z.string().min(2, 'Full name must be at least 2 characters'),
-  userType: z.number().int().in([1, 2], 'User type must be Parent (1) or Admin (2)'),
+  userType: z.number().int().refine(val => val === 1 || val === 2, 'User type must be Parent (1) or Admin (2)'),
 });
 
 // OTP schema
@@ -65,7 +65,7 @@ export const storySchema = z.object({
   title: z.string().min(1, 'Title is required').max(200, 'Title must not exceed 200 characters'),
   coverImageUrl: z.string().url('Invalid image URL'),
   contentPayload: z.string().min(1, 'Content is required'),
-  status: z.number().int().in([0, 1], 'Status must be Draft (0) or Published (1)'),
+  status: z.number().int().refine(val => val === 0 || val === 1, 'Status must be Draft (0) or Published (1)'),
 });
 
 // Quiz creation/editing schema
@@ -77,7 +77,7 @@ export const quizSchema = z.object({
     options: z.array(z.string()).min(2, 'At least 2 options required').max(6, 'Maximum 6 options allowed'),
     correctAnswer: z.number().int().min(0).max(5, 'Correct answer must be between 0-5'),
   })).min(1, 'At least one question required'),
-  status: z.number().int().in([0, 1], 'Status must be Draft (0) or Published (1)'),
+  status: z.number().int().refine(val => val === 0 || val === 1, 'Status must be Draft (0) or Published (1)'),
 });
 
 // Store item creation/editing schema
@@ -96,7 +96,7 @@ export const miniGameSchema = z.object({
   thumbnailUrl: z.string().url('Invalid thumbnail URL'),
   gamePayload: z.string().min(1, 'Game payload is required'),
   assets: z.string().optional(),
-  status: z.number().int().in([0, 1], 'Status must be Draft (0) or Published (1)'),
+  status: z.number().int().refine(val => val === 0 || val === 1, 'Status must be Draft (0) or Published (1)'),
 });
 
 // Avatar update schema
