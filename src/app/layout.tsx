@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 import { AuthProvider } from "@/contexts/AuthContext";
+import QueryClientProvider from "@/lib/query-client";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,9 +44,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>
       <body className="min-h-full flex flex-col">
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <QueryClientProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </QueryClientProvider>
 
         {/* Service Worker Registration */}
         <Script id="service-worker-registration" strategy="afterInteractive">

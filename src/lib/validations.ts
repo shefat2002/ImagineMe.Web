@@ -18,7 +18,7 @@ export const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   fullName: z.string().min(2, 'Full name must be at least 2 characters'),
-  userType: z.number().int().refine(val => val === 1 || val === 2, 'User type must be Parent (1) or Admin (2)'),
+  userType: z.union([z.number().int().refine(val => val === 1 || val === 2, 'User type must be Parent (1) or Admin (2)'), z.string().transform(val => val === '1' ? 1 : val === '2' ? 2 : NaN)]).refine(val => val === 1 || val === 2, 'User type must be Parent (1) or Admin (2)'),
 });
 
 // OTP schema

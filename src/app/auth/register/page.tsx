@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema, type RegisterInput } from '@/lib/validations';
+import { authService } from '@/lib/api/auth';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -26,16 +27,10 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
+      await authService.register(data);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Registration failed');
-      }
+      // Send verification OTP
+      await authService.sendVerification({ email: data.email });
 
       setRegisteredEmail(data.email);
       setShowOtp(true);
@@ -53,17 +48,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/verify-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: registeredEmail, otp }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'OTP verification failed');
-      }
-
+      await authService.verifyEmail({ email: registeredEmail, otp });
       router.push('/auth/login');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'OTP verification failed');

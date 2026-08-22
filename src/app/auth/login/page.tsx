@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, type LoginInput } from '@/lib/validations';
+import { authService } from '@/lib/api/auth';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -26,26 +27,33 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Login failed');
-      }
-
-      const authData = await response.json();
+      const authData = await authService.login(data);
 
       // Store token
       localStorage.setItem('token', authData.token);
+      localStorage.setItem('refreshToken', authData.refreshToken || '');
 
-      // Redirect based on user type (would be determined from token or API response)
+      // Redirect based on user type
       router.push('/parent/dashboard');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      const errorMessage = err instanceof Error ? err.message : 'Login failed';
+      setError(errorMessage);
+
+      // Check if error is due to unverified email
+      if (errorMessage.toLowerCase().includes('not verified') ||
+          errorMessage.toLowerCase().includes('verify your email') ||
+          errorMessage.toLowerCase().includes('email verification required')) {
+
+        // Send OTP to the user's email
+        try {
+          await authService.sendVerification({ email: data.email });
+          // Redirect to OTP page with email
+          router.push(`/auth/verify?email=${encodeURIComponent(data.email)}`);
+          return;
+        } catch (otpError) {
+          setError('Email not verified. Failed to send verification code.');
+        }
+      }
     } finally {
       setLoading(false);
     }
@@ -73,14 +81,7 @@ export default function LoginPage() {
             setLoading(true);
 
             try {
-              const response = await fetch('/api/auth/send-reset-otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: data.email }),
-              });
-
-              if (!response.ok) throw new Error('Failed to send OTP');
-
+              await authService.sendResetOtp({ email: data.email });
               setShowOtp(true);
             } catch (err) {
               setError(err instanceof Error ? err.message : 'Failed to send OTP');
@@ -145,18 +146,13 @@ export default function LoginPage() {
             setLoading(true);
 
             try {
-              const response = await fetch('/api/auth/reset-password', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  email: data.email,
-                  otp: '123456', // Would be collected from separate input
-                  newPassword: 'newPassword123', // Would be collected from separate input
-                }),
+              // Note: This form needs proper OTP and new password inputs
+              // Currently using placeholder values
+              await authService.resetPassword({
+                email: data.email,
+                otp: '123456', // Would be collected from separate input
+                newPassword: 'newPassword123', // Would be collected from separate input
               });
-
-              if (!response.ok) throw new Error('Password reset failed');
-
               router.push('/auth/login');
             } catch (err) {
               setError(err instanceof Error ? err.message : 'Password reset failed');
