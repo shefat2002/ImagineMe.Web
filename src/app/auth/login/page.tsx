@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,6 +13,13 @@ export default function LoginPage() {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isDev, setIsDev] = useState(false);
+
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_API_BASE_URL?.includes('dev-api')) {
+      setIsDev(true);
+    }
+  }, []);
 
   const {
     register,
@@ -246,6 +253,29 @@ export default function LoginPage() {
           >
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
+
+          {isDev && (
+            <button
+              type="button"
+              disabled={loading}
+              onClick={async () => {
+                setError(null);
+                setLoading(true);
+                try {
+                  const authData = await authService.devMagicLogin('Parent');
+                  localStorage.setItem('token', authData.token);
+                  localStorage.setItem('refreshToken', (authData as any).refreshToken || '');
+                  router.push('/parent/dashboard');
+                } catch (err) {
+                  setError(err instanceof Error ? err.message : 'Magic Login failed');
+                  setLoading(false);
+                }
+              }}
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-yellow-800 bg-yellow-100 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50"
+            >
+              🛠 1-Click Magic Login (Dev Mode)
+            </button>
+          )}
 
           <div className="text-center">
             <p className="text-sm text-gray-600">

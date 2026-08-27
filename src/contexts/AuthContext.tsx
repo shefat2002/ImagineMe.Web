@@ -31,6 +31,7 @@ interface AuthContextType {
   login: (credentials: LoginRequest) => Promise<AuthResponse>;
   adminLogin: (email: string, password: string) => Promise<AuthResponse>;
   childLogin: (credentials: ChildLoginRequest) => Promise<ChildAuthResponse>;
+  devMagicLogin: (role: 'Admin' | 'Parent' | 'Child') => Promise<AuthResponse | ChildAuthResponse>;
   register: (data: RegisterRequest) => Promise<AuthResponse>;
   logout: () => void;
   isAuthenticated: boolean;
@@ -176,6 +177,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
+  const devMagicLogin = useCallback(async (role: 'Admin' | 'Parent' | 'Child'): Promise<AuthResponse | ChildAuthResponse> => {
+    setLoading(true);
+    try {
+      const response = await authService.devMagicLogin(role);
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('authToken', response.token);
+        if (role === 'Admin') localStorage.setItem('isAdmin', 'true');
+      }
+
+      let parsedUserType = UserType.Parent;
+      if (role === 'Admin') parsedUserType = UserType.Admin;
+      if (role === 'Child') parsedUserType = UserType.Child;
+
+      const newUser: User = {
+        id: (response as any).user?.id || (response as any).childId || 'mock-id',
+        email: (response as any).user?.email || 'mock@dev.local',
+        fullName: (response as any).user?.username || `Dev ${role}`,
+        userType: parsedUserType,
+      };
+
+      if (role === 'Child') {
+        newUser.childData = {
+          childId: (response as any).user?.id || 'mock-child-id',
+          username: (response as any).user?.username || 'dev_child',
+          coins: 500,
+          currentStreak: 3,
+        };
+      }
+
+      setUser(newUser);
+      setLoading(false);
+      return response;
+    } catch (error) {
+      setLoading(false);
+      throw error;
+    }
+  }, []);
+
   const register = useCallback(async (data: RegisterRequest): Promise<AuthResponse> => {
     setLoading(true);
     try {
@@ -226,6 +266,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     login,
     adminLogin,
     childLogin,
+    devMagicLogin,
     register,
     logout,
     isAuthenticated: !!user,

@@ -1,0 +1,170 @@
+# DaberAI
+
+React Native / Expo mobile app for Hebrew language learning with AI-powered conversation practice.
+
+## Tech Stack
+
+- **Framework**: React Native 0.81.5, Expo 54, Expo Router
+- **Language**: TypeScript
+- **State**: Zustand
+- **Data Fetching**: TanStack Query (React Query)
+- **Styling**: NativeWind (Tailwind CSS for React Native)
+- **Backend**: Firebase (Firestore, Storage, Functions, Auth)
+- **Audio**: Expo Audio, @siteed/audio-studio, Soniox
+- **Animation**: React Native Reanimated
+
+## Setup
+
+### Prerequisites
+
+- Node.js 20+
+- Yarn or npm
+- Expo CLI
+- Android Studio (for Android)
+- Xcode 15+ (for iOS, macOS only)
+- CocoaPods (for iOS)
+
+### Installation
+
+```bash
+# Clone repository
+git clone <repo-url>
+cd Daber
+
+# Install dependencies
+yarn install
+
+# Install iOS pods (macOS only)
+cd ios && pod install && cd ..
+
+# Setup environment variables
+cp .env.local.example .env.local
+# Edit .env.local with your keys
+```
+
+### Environment Variables
+
+Create `.env.local`:
+
+```bash
+# OpenAI API Key (for conversation LLM)
+OPENAI_API_KEY=sk-proj-...
+
+# Firebase Functions Emulator (local development)
+EXPO_PUBLIC_USE_FUNCTIONS_EMULATOR=false
+
+# Functions emulator host (optional, defaults shown)
+EXPO_PUBLIC_FUNCTIONS_EMULATOR_HOST=127.0.0.1
+EXPO_PUBLIC_FUNCTIONS_EMULATOR_PORT=5001
+
+# Helicone API Key (optional, for LLM observability)
+HELICONE_API_KEY=sk-helicone-...
+```
+
+## Running the App
+
+### Development Server (Metro)
+
+```bash
+# Start Expo dev server
+yarn start
+
+# Run in specific environment
+yarn start --clear
+```
+
+### iOS
+
+**Via Expo CLI (recommended):**
+```bash
+yarn ios
+```
+
+**Via Xcode:**
+```bash
+# First prebuild to generate native code
+yarn prebuild --clean
+
+# Open Xcode
+open ios/DaberAI.xcworkspace
+
+# In Xcode:
+# 1. Select DaberAI scheme
+# 2. Choose target device/simulator
+# 3. Press Cmd+R to run
+```
+
+### Android
+
+**Via Expo CLI (recommended):**
+```bash
+yarn android
+```
+
+**Via Android Studio:**
+```bash
+# First prebuild to generate native code
+yarn prebuild --clean
+
+# Open Android Studio
+open -a "Android Studio" android/
+
+# In Android Studio:
+# 1. Open android/ folder as project
+# 2. Sync Gradle
+# 3. Press Run (Shift+F10)
+```
+
+## Native Build Configuration
+
+### iOS (Xcode)
+
+Bundle Identifier: `com.tomsan2804.Daber`
+
+Key settings in `ios/DaberAI/`:
+- **Info.plist**: Localization, microphone permissions
+- **Signing & Capabilities**: Apple Sign In, Push Notifications
+- **Build Settings**: Deployment target iOS 13+
+
+### Android (Android Studio)
+
+Package: `com.tomsan2804.Daber`
+
+Key files in `android/app/`:
+- **build.gradle**: Dependencies, minSdk 21
+- **AndroidManifest.xml**: Permissions (RECORD_AUDIO)
+
+
+## Build & Deploy
+
+### Development Build (Expo Dev Client)
+
+```bash
+# Build development client
+eas build --profile development --platform all
+
+# Or locally
+eas build --profile development --platform ios --local
+```
+
+### Production Build
+
+```bash
+# Build for app stores
+eas build --profile production --platform all
+
+# Submit to stores
+eas submit --platform ios
+eas submit --platform android
+```
+
+## Troubleshooting
+
+**iOS CocoaPods:**
+```bash
+cd ios && pod install && cd ..
+```
+
+**Functions emulator connection:**
+- Ensure `EXPO_PUBLIC_USE_FUNCTIONS_EMULATOR=true`
+- Android uses `10.0.2.2`, iOS uses `127.0.0.1`

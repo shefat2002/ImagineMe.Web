@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { loginSchema } from '@/lib/validations';
@@ -13,8 +13,15 @@ import FormLabel from '@/components/ui/FormLabel';
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const { adminLogin } = useAuth();
+  const { adminLogin, devMagicLogin } = useAuth();
   const [error, setError] = useState<string>('');
+  const [isDev, setIsDev] = useState(false);
+
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_API_BASE_URL?.includes('dev-api')) {
+      setIsDev(true);
+    }
+  }, []);
 
   const {
     register,
@@ -102,6 +109,26 @@ export default function AdminLoginPage() {
           >
             {isSubmitting ? 'Signing in...' : 'Sign in'}
           </Button>
+
+          {isDev && (
+            <Button
+              type="button"
+              variant="secondary"
+              size="lg"
+              className="w-full bg-yellow-100 hover:bg-yellow-200 text-yellow-800 border-yellow-300"
+              onClick={async () => {
+                try {
+                  setError('');
+                  await devMagicLogin('Admin');
+                  router.push('/admin/dashboard');
+                } catch (err: any) {
+                  setError(err.message || 'Magic login failed');
+                }
+              }}
+            >
+              🛠 1-Click Magic Login (Dev Mode)
+            </Button>
+          )}
 
           <div className="text-center text-sm">
             <a href="/auth/login" className="text-blue-600 hover:text-blue-500">

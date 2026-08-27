@@ -45,4 +45,10 @@ export const authService = {
     const response = await apiClient.post<{ message: string }>('/api/auth/reset-password', data);
     return response.data;
   },
+
+  // 🛠 DEVELOPMENT ONLY: Bypass password checks when testing locally
+  async devMagicLogin(role: 'Admin' | 'Parent' | 'Child'): Promise<AuthResponse> {
+    const response = await apiClient.post<AuthResponse>('/api/dev/auth/magic-login', { role });
+    return response.data;
+  },
 };

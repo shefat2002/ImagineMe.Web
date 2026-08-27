@@ -1,7 +1,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 import { ErrorResponse } from '@/types/api';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://imaginemebylovie.com';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://dev-api.imaginemebylovie.com';
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,

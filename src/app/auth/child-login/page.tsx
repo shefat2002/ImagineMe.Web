@@ -1,15 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { childLoginSchema, type ChildLoginInput } from '@/lib/validations';
+import { authService } from '@/lib/api/auth';
 
 export default function ChildLoginPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isDev, setIsDev] = useState(false);
+
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_API_BASE_URL?.includes('dev-api')) {
+      setIsDev(true);
+    }
+  }, []);
 
   const {
     register,
@@ -124,6 +132,34 @@ export default function ChildLoginPage() {
               </span>
             )}
           </button>
+
+          {isDev && (
+            <button
+              type="button"
+              disabled={loading}
+              onClick={async () => {
+                setError(null);
+                setLoading(true);
+                try {
+                  const authData: any = await authService.devMagicLogin('Child');
+                  localStorage.setItem('token', authData.token);
+                  localStorage.setItem('childInfo', JSON.stringify({
+                    childId: authData.childId,
+                    username: authData.username,
+                    coins: authData.coins,
+                    currentStreak: authData.currentStreak,
+                  }));
+                  router.push('/child/portal');
+                } catch (err) {
+                  setError(err instanceof Error ? err.message : 'Magic Login failed');
+                  setLoading(false);
+                }
+              }}
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-yellow-800 bg-yellow-100 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50"
+            >
+              🛠 1-Click Magic Login (Dev Mode)
+            </button>
+          )}
 
           <div className="text-center space-y-2">
             <p className="text-sm text-gray-600">
