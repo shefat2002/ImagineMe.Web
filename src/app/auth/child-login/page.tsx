@@ -46,7 +46,7 @@ export default function ChildLoginPage() {
       const authData = await response.json();
 
       // Store token and child info
-      localStorage.setItem('token', authData.token);
+      localStorage.setItem('authToken', authData.token);
       localStorage.setItem('childInfo', JSON.stringify({
         childId: authData.childId,
         username: authData.username,
@@ -142,7 +142,7 @@ export default function ChildLoginPage() {
                 setLoading(true);
                 try {
                   const authData: any = await authService.devMagicLogin('Child');
-                  localStorage.setItem('token', authData.token);
+                  localStorage.setItem('authToken', authData.token);
                   localStorage.setItem('childInfo', JSON.stringify({
                     childId: authData.childId,
                     username: authData.username,

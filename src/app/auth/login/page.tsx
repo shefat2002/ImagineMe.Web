@@ -37,13 +37,14 @@ export default function LoginPage() {
       const authData = await authService.login(data);
 
       // Store token
-      localStorage.setItem('token', authData.token);
+      localStorage.setItem('authToken', authData.token);
       localStorage.setItem('refreshToken', authData.refreshToken || '');
 
       // Redirect based on user type
       router.push('/parent/dashboard');
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Login failed';
+      const { getErrorMessage } = await import('@/lib/api-client');
+      const errorMessage = getErrorMessage(err);
       setError(errorMessage);
 
       // Check if error is due to unverified email
@@ -255,26 +256,78 @@ export default function LoginPage() {
           </button>
 
           {isDev && (
-            <button
-              type="button"
-              disabled={loading}
-              onClick={async () => {
-                setError(null);
-                setLoading(true);
-                try {
-                  const authData = await authService.devMagicLogin('Parent');
-                  localStorage.setItem('token', authData.token);
-                  localStorage.setItem('refreshToken', (authData as any).refreshToken || '');
-                  router.push('/parent/dashboard');
-                } catch (err) {
-                  setError(err instanceof Error ? err.message : 'Magic Login failed');
-                  setLoading(false);
-                }
-              }}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-yellow-800 bg-yellow-100 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50"
-            >
-              🛠 1-Click Magic Login (Dev Mode)
-            </button>
+            <div className="space-y-3">
+              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">
+                Development Quick Login
+              </div>
+              <button
+                type="button"
+                disabled={loading}
+                onClick={async () => {
+                  setError(null);
+                  setLoading(true);
+                  try {
+                    const authData = await authService.devMagicLogin('Parent');
+                    localStorage.setItem('authToken', authData.token);
+                    localStorage.setItem('refreshToken', (authData as any).refreshToken || '');
+                    router.push('/parent/dashboard');
+                  } catch (err) {
+                    setError(err instanceof Error ? err.message : 'Magic Login failed');
+                    setLoading(false);
+                  }
+                }}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-yellow-800 bg-yellow-100 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50"
+              >
+                🛠 Login as Parent
+              </button>
+              
+              <button
+                type="button"
+                disabled={loading}
+                onClick={async () => {
+                  setError(null);
+                  setLoading(true);
+                  try {
+                    const authData = await authService.devMagicLogin('Admin');
+                    localStorage.setItem('authToken', authData.token);
+                    localStorage.setItem('refreshToken', (authData as any).refreshToken || '');
+                    router.push('/admin/dashboard');
+                  } catch (err) {
+                    setError(err instanceof Error ? err.message : 'Magic Login failed');
+                    setLoading(false);
+                  }
+                }}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-purple-800 bg-purple-100 hover:bg-purple-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50"
+              >
+                🛠 Login as Admin
+              </button>
+
+              <button
+                type="button"
+                disabled={loading}
+                onClick={async () => {
+                  setError(null);
+                  setLoading(true);
+                  try {
+                    const authData: any = await authService.devMagicLogin('Child');
+                    localStorage.setItem('authToken', authData.token);
+                    localStorage.setItem('childInfo', JSON.stringify({
+                      childId: authData.childId,
+                      username: authData.username,
+                      coins: authData.coins,
+                      currentStreak: authData.currentStreak,
+                    }));
+                    router.push('/child/portal');
+                  } catch (err) {
+                    setError(err instanceof Error ? err.message : 'Magic Login failed');
+                    setLoading(false);
+                  }
+                }}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-green-800 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+              >
+                🛠 Login as Child
+              </button>
+            </div>
           )}
 
           <div className="text-center">

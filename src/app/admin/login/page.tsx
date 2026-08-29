@@ -11,6 +11,8 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import FormLabel from '@/components/ui/FormLabel';
 
+import { getErrorMessage } from '@/lib/api-client';
+
 export default function AdminLoginPage() {
   const router = useRouter();
   const { adminLogin, devMagicLogin } = useAuth();
@@ -37,7 +39,7 @@ export default function AdminLoginPage() {
       await adminLogin(data.email, data.password);
       router.push('/admin/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Admin login failed');
+      setError(getErrorMessage(err));
     }
   };
 

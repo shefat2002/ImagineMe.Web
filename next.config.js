@@ -5,6 +5,7 @@ const nextConfig = {
 
   // Turbopack configuration (Next.js 16+)
   turbopack: {},
+  serverExternalPackages: ['lightningcss', '@tailwindcss/postcss'],
 
   // Environment variables
   env: {
