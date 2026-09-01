@@ -319,4 +319,3 @@ export function shouldTriggerLogout(error: Error): boolean {
 }
 
 // Export error types for use in components
-export { ErrorType };

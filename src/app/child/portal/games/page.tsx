@@ -14,19 +14,19 @@ export default function GamesPage() {
 
   const { data: games, isLoading, error } = useQuery({
     queryKey: ['minigames'],
-    queryFn: () => childService.listMiniGames(),
+    queryFn: () => childService.getMiniGames(),
     enabled: !!user && user.userType === 3
   })
 
   const { data: gameDetails } = useQuery({
     queryKey: ['minigame', selectedGame?.id],
-    queryFn: () => childService.getMiniGameDetails(selectedGame!.id),
+    queryFn: () => childService.getMiniGame(selectedGame!.id),
     enabled: !!selectedGame
   })
 
   const logGameMutation = useMutation({
     mutationFn: (data: { gameType: string; score: number; durationMinutes: number; coinsEarned: number }) =>
-      childService.logGameActivity(data.gameType, data.score, data.durationMinutes, data.coinsEarned)
+      childService.logGameActivity(data)
   })
 
   const handleGameStart = (game: MiniGameContentDto) => {
@@ -168,7 +168,7 @@ export default function GamesPage() {
             <div
               key={game.id}
               onClick={() => {
-                childService.getMiniGameDetails(game.id).then(details => {
+                childService.getMiniGame(game.id).then(details => {
                   setSelectedGame(details)
                 })
               }}

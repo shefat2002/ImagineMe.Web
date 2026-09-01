@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import * as parentService from '@/lib/api/parent';
+import { parentService } from '@/lib/api/parent';
 import type { CreateChildRequest, UpdateChildRequest } from '@/types/api';
 
 export function useParentDashboard() {
@@ -58,7 +58,7 @@ export function useChildDetail(childId: string) {
 
   const { data: child, isLoading } = useQuery({
     queryKey: ['parent', 'children', childId],
-    queryFn: () => parentService.getChildDetail(childId),
+    queryFn: () => parentService.getChildDetails(childId),
     staleTime: 5 * 60 * 1000,
   });
 

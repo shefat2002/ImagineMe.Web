@@ -175,9 +175,9 @@ if (typeof window !== 'undefined') {
       if (vitals) {
         Promise.all([vitals.getLCP(), vitals.getFID(), vitals.getCLS()]).then(([lcp, fid, cls]) => {
           console.group('📊 Core Web Vitals');
-          console.log(`LCP (Largest Contentful Paint): ${lcp.toFixed(0)}ms`);
-          console.log(`FID (First Input Delay): ${fid.toFixed(0)}ms`);
-          console.log(`CLS (Cumulative Layout Shift): ${cls.toFixed(3)}`);
+          console.log(`LCP (Largest Contentful Paint): ${(lcp as number).toFixed(0)}ms`);
+          console.log(`FID (First Input Delay): ${(fid as number).toFixed(0)}ms`);
+          console.log(`CLS (Cumulative Layout Shift): ${(cls as number).toFixed(3)}`);
           console.groupEnd();
         });
       }

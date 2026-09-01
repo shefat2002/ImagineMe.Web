@@ -96,7 +96,7 @@ export default function ChildProfilePage() {
           <div className="flex-1 space-y-4">
             <div>
               <h2 className="text-3xl font-bold text-gray-800">{profile?.username}</h2>
-              <p className="text-gray-600">Member since {new Date(profile?.createdAt || '').toLocaleDateString()}</p>
+              <p className="text-gray-600">Last seen {new Date(profile?.lastLoginAt || new Date()).toLocaleDateString()}</p>
             </div>
 
             {/* Quick Stats */}

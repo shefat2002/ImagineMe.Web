@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import * as childService from '@/lib/api/child';
+import { childService } from '@/lib/api/child';
 import type { UpdateAvatarRequest } from '@/types/api';
 
 export function useChildProfile() {
@@ -53,7 +53,7 @@ export function useStories() {
 
   const logStoryMutation = useMutation({
     mutationFn: ({ storyId, coinsEarned }: { storyId: string; coinsEarned?: number }) =>
-      childService.logStoryActivity(storyId, coinsEarned),
+      childService.logStoryActivity({ storyId, coinsEarned }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['child', 'profile'] });
       queryClient.invalidateQueries({ queryKey: ['child', 'stats'] });
@@ -84,7 +84,7 @@ export function useStore() {
   });
 
   const purchaseMutation = useMutation({
-    mutationFn: (storeItemId: string) => childService.requestPurchase(storeItemId),
+    mutationFn: (storeItemId: string) => childService.requestPurchase({ storeItemId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['child', 'profile'] });
       queryClient.invalidateQueries({ queryKey: ['child', 'store', 'my-items'] });

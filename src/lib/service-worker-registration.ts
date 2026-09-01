@@ -1,9 +1,9 @@
 export function registerSW() {
   if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker
+      (navigator as any).serviceWorker
         .register('/sw.js')
-        .then((registration) => {
+        .then((registration: any) => {
           console.log('SW registered: ', registration);
 
           // Check for updates
@@ -11,7 +11,7 @@ export function registerSW() {
             const newWorker = registration.installing;
             if (newWorker) {
               newWorker.addEventListener('statechange', () => {
-                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                if (newWorker.state === 'installed' && (navigator as any).serviceWorker.controller) {
                   // New content is available; refresh to get it
                   if (window.confirm('New content available. Refresh to update?')) {
                     window.location.reload();
@@ -21,7 +21,7 @@ export function registerSW() {
             }
           });
         })
-        .catch((registrationError) => {
+        .catch((registrationError: any) => {
           console.log('SW registration failed: ', registrationError);
         });
     });
@@ -42,9 +42,11 @@ export function unregisterSW() {
 
 // Request sync for offline activities
 export function requestSync(tag: string = 'sync-activities') {
-  if ('serviceWorker' in navigator && 'sync' in navigator.serviceWorkerRegistration) {
-    navigator.serviceWorker.ready.then((registration) => {
-      registration.sync.register(tag);
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then((registration: any) => {
+      if ('sync' in registration) {
+        registration.sync.register(tag);
+      }
     });
   }
 }

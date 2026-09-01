@@ -32,6 +32,11 @@ export interface AuthResponse {
   token: string;
   tokenType: string;
   expiresAt: string;
+  refreshToken?: string;
+  userId?: string;
+  email?: string;
+  fullName?: string;
+  userType?: number;
 }
 
 export interface ChildAuthResponse extends AuthResponse {

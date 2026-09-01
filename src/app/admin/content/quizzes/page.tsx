@@ -74,7 +74,7 @@ export default function AdminQuizzesPage() {
     if (field === 'options') {
       newQuestions[index].options = value;
     } else {
-      newQuestions[index][field] = value;
+      (newQuestions[index] as any)[field] = value;
     }
     setQuestions(newQuestions);
   };

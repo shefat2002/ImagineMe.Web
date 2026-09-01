@@ -84,10 +84,11 @@ export function formatDuration(ms: number): string {
 }
 
 // Lazy load component wrapper
-export function lazyLoad<T>(
+export function lazyLoad<T extends React.ComponentType<any>>(
   importFunc: () => Promise<{ default: T }>,
   fallback?: React.ComponentType
-): React.ComponentType<T> {
+): React.ComponentType<React.ComponentProps<T>> {
+  const React = require('react');
   return React.lazy(importFunc);
 }
 

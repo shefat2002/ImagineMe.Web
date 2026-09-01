@@ -18,4 +18,4 @@ export type { BadgeProps } from './Badge';
 export type { AvatarProps } from './Avatar';
 export type { TableProps } from './Table';
 export type { FormLabelProps, FormErrorProps, FormHelperProps } from './FormLabel';
-export type { Toast } from './Toast';
+export type { Toast as ToastType } from './Toast';

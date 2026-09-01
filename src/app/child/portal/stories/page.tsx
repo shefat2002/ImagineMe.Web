@@ -1,7 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { Link } from 'next/navigation'
+import Link from 'next/link'
 import { childService } from '@/lib/api/child'
 import { StoryDto } from '@/types/api'
 import { useAuth } from '@/contexts/AuthContext'
@@ -13,7 +13,7 @@ export default function StoriesPage() {
 
   const { data: stories, isLoading, error } = useQuery({
     queryKey: ['stories'],
-    queryFn: () => childService.listStories(),
+    queryFn: () => childService.getStories(),
     enabled: !!user && user.userType === 3
   })
 
@@ -64,7 +64,7 @@ export default function StoriesPage() {
             <button
               onClick={async () => {
                 try {
-                  const result = await childService.logStoryActivity(selectedStory.id, 10)
+                  const result = await childService.logStoryActivity({ storyId: selectedStory.id, coinsEarned: 10 })
                   alert(`🎉 Story completed! +${result.coinsEarned} coins!`)
                 } catch (error) {
                   alert('Failed to log activity')

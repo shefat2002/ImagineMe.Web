@@ -16,13 +16,13 @@ export default function QuizzesPage() {
 
   const { data: quizzes, isLoading, error } = useQuery({
     queryKey: ['quizzes'],
-    queryFn: () => childService.listQuizzes(),
+    queryFn: () => childService.getQuizzes(),
     enabled: !!user && user.userType === 3
   })
 
   const logQuizMutation = useMutation({
-    mutationFn: (data: { quizId: string; score: number; coinsEarned: number }) =>
-      childService.logQuizActivity(data.quizId, data.score, data.coinsEarned)
+    mutationFn: (data: { quizId: string; score: number; durationMinutes: number; coinsEarned: number; correctAnswers: number; totalQuestions: number }) =>
+      childService.logQuizActivity(data)
   })
 
   if (isLoading) {
@@ -169,7 +169,10 @@ export default function QuizzesPage() {
                     await logQuizMutation.mutateAsync({
                       quizId: selectedQuiz.id,
                       score,
-                      coinsEarned
+                      coinsEarned,
+                      durationMinutes: 1, // Add proper tracking if needed
+                      correctAnswers: score,
+                      totalQuestions: selectedQuiz.questions?.length || 10
                     })
                     alert(`Activity logged! +${coinsEarned} coins added to your profile.`)
                   } catch (error) {
